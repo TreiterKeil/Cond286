@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+
+<a href="{{ url_for('reconciliation.index') }}" class="back-link">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Conciliação
+</a>
+
+<h1>Associar Movimento</h1>
+
+<!-- Bank Movement -->
+<div class="card" style="border-left: 3px solid #6c5ce7;">
+    <h3 style="font-size: 0.9em; margin-bottom: 8px;">Movimento Bancário</h3>
+    <table style="font-size: 0.86em;">
+        <tr><td style="padding: 2px 8px 2px 0; color: var(--text-muted);">Data</td><td style="padding: 2px 0;"><strong>{{ movimento.data_movimento.strftime('%d/%m/%Y') }}</strong></td></tr>
+        <tr><td style="padding: 2px 8px 2px 0; color: var(--text-muted);">Descrição</td><td style="padding: 2px 0;">{{ movimento.descricao }}</td></tr>
+        <tr><td style="padding: 2px 8px 2px 0; color: var(--text-muted);">Montante</td><td style="padding: 2px 0; font-weight: 700; color: {% if movimento.montante >= 0 %}var(--success){% else %}var(--danger-text){% endif %};">{{ format_currency(movimento.montante) }}</td></tr>
+    </table>
+</div>
+
+<!-- Match to Receipt -->
+<div class="card">
+    <h3 style="margin-bottom: 10px;">🧾 Associar a Recibo</h3>
+    <p class="text-muted" style="font-size: 0.8em; margin-bottom: 10px;">Pagamento de quota de um condómino.</p>
+    <form method="POST" action="{{ url_for('reconciliation.match', id=movimento.id) }}">
+        <input type="hidden" name="tipo" value="recibo">
+        <div class="form-group">
+            <select class="form-select" name="item_id">
+                <option value="">— Nenhum —</option>
+                {% for recibo in recibos %}
+                <option value="{{ recibo.id }}">#{{ recibo.numero }} — {{ recibo.unidade.codigo }} — {{ format_currency(recibo.valor) }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success btn-sm">Confirmar</button>
+    </form>
+</div>
+
+<!-- Match to Expense -->
+<div class="card">
+    <h3 style="margin-bottom: 10px;">💸 Associar a Despesa</h3>
+    <p class="text-muted" style="font-size: 0.8em; margin-bottom: 10px;">Pagamento de uma despesa do condomínio.</p>
+    <form method="POST" action="{{ url_for('reconciliation.match', id=movimento.id) }}">
+        <input type="hidden" name="tipo" value="despesa">
+        <div class="form-group">
+            <select class="form-select" name="item_id">
+                <option value="">— Nenhuma —</option>
+                {% for despesa in despesas %}
+                <option value="{{ despesa.id }}">{{ despesa.categoria }} — {{ despesa.descricao[:35] }} — {{ format_currency(despesa.valor) }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-danger btn-sm">Confirmar</button>
+    </form>
+</div>
+
+<!-- Ignore -->
+<div class="card" style="text-align: center;">
+    <h3 style="margin-bottom: 8px;">⏭️ Ignorar Movimento</h3>
+    <p class="text-muted" style="font-size: 0.8em; margin-bottom: 10px;">Para transferências internas, juros, ou outros movimentos que não são receitas nem despesas.</p>
+    <form method="POST" action="{{ url_for('reconciliation.match', id=movimento.id) }}">
+        <input type="hidden" name="tipo" value="ignorar">
+        <input type="hidden" name="item_id" value="">
+        <button type="submit" class="btn btn-outline btn-sm">Marcar como Ignorado</button>
+    </form>
+</div>
+
+{% endblock %}

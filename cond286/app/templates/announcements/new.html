@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+
+<a href="{{ url_for('announcements.index') }}" class="back-link">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Comunicados
+</a>
+
+<h1>Novo Comunicado</h1>
+
+<div class="card" style="margin-top: 12px;">
+<form method="POST">
+    
+    <div class="form-group">
+        <label class="form-label" for="titulo">Título</label>
+        <input class="form-input" type="text" id="titulo" name="titulo" required placeholder="Ex: Ata da Reunião — Março 2026">
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="conteudo">Conteúdo</label>
+        <textarea class="form-textarea" id="conteudo" name="conteudo" rows="10" required placeholder="Escreva o comunicado ou a ata da reunião..."></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-block btn-lg" style="background: var(--text); color: #fff;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-5v12l-9-5Z"/><path d="M12 6c4.5 2 8 6.5 8 12"/></svg>
+        Publicar Comunicado
+    </button>
+
+</form>
+</div>
+
+{% endblock %}

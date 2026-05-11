@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+
+<a href="{{ url_for('reconciliation.index') }}" class="back-link">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Conciliação
+</a>
+
+<h1>Importar Movimento</h1>
+
+<div class="card" style="margin-top: 12px;">
+<form method="POST">
+    
+    <div class="form-group">
+        <label class="form-label" for="data_movimento">Data do Movimento</label>
+        <input class="form-input" type="date" id="data_movimento" name="data_movimento" required value="{{ today.strftime('%Y-%m-%d') if today else '' }}">
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="data_valor">Data Valor</label>
+        <input class="form-input" type="date" id="data_valor" name="data_valor">
+        <div class="form-hint">Se diferente da data do movimento.</div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="descricao">Descrição</label>
+        <input class="form-input" type="text" id="descricao" name="descricao" required placeholder="Ex: TRF ISABEL MARIA LAMP">
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="montante">Montante (€)</label>
+        <input class="form-input text-mono" type="number" id="montante" name="montante" step="0.01" required placeholder="Positivo = crédito · Negativo = débito">
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="saldo_apos">Saldo Após (opcional)</label>
+        <input class="form-input text-mono" type="number" id="saldo_apos" name="saldo_apos" step="0.01" placeholder="Ex: 2995.83">
+    </div>
+
+    <button type="submit" class="btn btn-block btn-lg" style="background: #6c5ce7; color: #fff;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Adicionar Movimento
+    </button>
+
+</form>
+</div>
+
+{% endblock %}
