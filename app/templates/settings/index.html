@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Definições</h1>
+
+<form method="POST">
+
+    <!-- Bank Data -->
+    <div class="card">
+        <h2 style="margin-bottom: 14px;">🏦 Dados Bancários</h2>
+        
+        <div class="form-group">
+            <label class="form-label" for="saldo_inicial_banco">Saldo Inicial do Banco (€)</label>
+            <input class="form-input text-mono" type="number" id="saldo_inicial_banco" name="saldo_inicial_banco" step="0.01" value="{{ config.get('saldo_inicial_banco', '2995.83') }}">
+            <div class="form-hint">Saldo de partida. Atualize após cada conciliação.</div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="iban">IBAN da Conta</label>
+            <input class="form-input text-mono" type="text" id="iban" name="iban" value="{{ config.get('iban', '') }}" placeholder="PT50 0000 0000 0000 0000 0000 0">
+            <div class="form-hint">Aparece nos recibos impressos.</div>
+        </div>
+    </div>
+
+    <!-- Penalty Rules -->
+    <div class="card">
+        <h2 style="margin-bottom: 14px;">⚖️ Regras de Penalização</h2>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="taxa_juros">Taxa Juros Anual (%)</label>
+                <input class="form-input" type="number" id="taxa_juros" name="taxa_juros" step="0.1" min="0" max="100" value="{{ config.get('taxa_juros', '10.0') }}">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="multa_incumprimento">Multa (€)</label>
+                <input class="form-input text-mono" type="number" id="multa_incumprimento" name="multa_incumprimento" step="0.01" min="0" value="{{ config.get('multa_incumprimento', '0.00') }}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="dias_tolerancia">Dias de Tolerância</label>
+            <input class="form-input" type="number" id="dias_tolerancia" name="dias_tolerancia" step="1" min="0" value="{{ config.get('dias_tolerancia', '30') }}">
+            <div class="form-hint">Dias após vencimento antes de considerar em atraso.</div>
+        </div>
+    </div>
+
+    <!-- Receipt Numbering -->
+    <div class="card">
+        <h2 style="margin-bottom: 14px;">🧾 Numeração de Recibos</h2>
+        
+        <div class="form-group">
+            <label class="form-label" for="ultimo_numero_recibo">Último Número Emitido</label>
+            <input class="form-input text-mono" type="number" id="ultimo_numero_recibo" name="ultimo_numero_recibo" step="1" min="0" value="{{ config.get('ultimo_numero_recibo', '895') }}">
+            <div class="form-hint">O próximo recibo usará o número seguinte. ⚠️ Alterar apenas se necessário.</div>
+        </div>
+    </div>
+
+    <!-- System Info -->
+    <div class="card">
+        <h2 style="margin-bottom: 14px;">ℹ️ Sobre</h2>
+        
+        <table style="font-size: 0.86em; width: 100%;">
+            <tr><td style="padding: 4px 0; color: var(--text-muted);">Condomínio</td><td style="padding: 4px 0;">Rua da Aldeia Velha, 286 — Montijo</td></tr>
+            <tr><td style="padding: 4px 0; color: var(--text-muted);">Administrador</td><td style="padding: 4px 0;">Miguel Ângelo Rodrigues (2º FRT)</td></tr>
+            <tr><td style="padding: 4px 0; color: var(--text-muted);">Frações</td><td style="padding: 4px 0;">12</td></tr>
+            <tr><td style="padding: 4px 0; color: var(--text-muted);">Quota Mensal</td><td style="padding: 4px 0;">15,00€ por fração</td></tr>
+            <tr><td style="padding: 4px 0; color: var(--text-muted);">Contacto</td><td style="padding: 4px 0;">condominio286@gmail.com · 916 124 007</td></tr>
+        </table>
+    </div>
+
+    <!-- Save Button -->
+    <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+        Guardar Definições
+    </button>
+
+</form>
+
+{% endblock %}

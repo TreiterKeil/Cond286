@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="section-header">
+    <h1>Comunicados</h1>
+    {% if current_user.is_admin() %}
+    <a href="{{ url_for('announcements.new') }}" class="btn btn-sm" style="background: var(--text); color: #fff;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo
+    </a>
+    {% endif %}
+</div>
+
+{% if anuncios %}
+    {% for anuncio in anuncios %}
+    <div class="card announcement-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="flex: 1;">
+                <a href="{{ url_for('announcements.detail', id=anuncio.id) }}" style="text-decoration: none; color: var(--text);">
+                    <h3 class="announcement-title">{{ anuncio.titulo }}</h3>
+                </a>
+                <div class="announcement-date">{{ anuncio.criado_em.strftime('%d de %B de %Y às %H:%M') }}</div>
+            </div>
+            {% if current_user.is_admin() %}
+            <form method="POST" action="{{ url_for('announcements.delete', id=anuncio.id) }}" onsubmit="return confirm('Eliminar este comunicado?')">
+                <button type="submit" class="btn-icon" title="Eliminar" style="color: var(--danger-text);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        <div class="announcement-body" style="margin-top: 10px;">
+            {{ anuncio.conteudo[:250] }}{% if anuncio.conteudo|length > 250 %}...{% endif %}
+        </div>
+        {% if anuncio.conteudo|length > 250 %}
+        <a href="{{ url_for('announcements.detail', id=anuncio.id) }}" style="font-size: 0.82em; margin-top: 6px; display: inline-block;">Ler mais →</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+    
+    <div style="text-align: center; margin-top: 12px;" class="text-muted">
+        {{ anuncios|length }} comunicado(s)
+    </div>
+
+{% else %}
+<div class="empty-state">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-5v12l-9-5Z"/><path d="M12 6c4.5 2 8 6.5 8 12"/></svg>
+    <p>Sem comunicados publicados.</p>
+    {% if current_user.is_admin() %}
+    <a href="{{ url_for('announcements.new') }}" class="btn btn-sm" style="background: var(--text); color: #fff;">Publicar</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

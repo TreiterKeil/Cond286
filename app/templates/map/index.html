@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Mapa de Pagamentos</h1>
+<p class="text-muted" style="font-size: 0.82em; margin-bottom: 14px;">
+    Quota semestral: {{ format_currency(90) }} por fração
+</p>
+
+<div class="table-wrap">
+<table class="map-table">
+    <tr>
+        <th>Fração</th>
+        {% for periodo in periodos %}
+        <th>{{ periodo.nome }}</th>
+        {% endfor %}
+        <th>Estado</th>
+    </tr>
+    {% for linha in mapa %}
+    <tr>
+        <td>
+            <a href="{{ url_for('units.detail', id=linha.unidade.id) }}" style="font-weight: 650;">
+                {{ linha.unidade.codigo }}
+            </a>
+            <div class="text-muted" style="font-size: 0.7em;">{{ linha.unidade.nome_proprietario[:22] if linha.unidade.nome_proprietario else '—' }}</div>
+        </td>
+        {% for p in linha.periodos %}
+        <td class="map-cell">
+            {% if p.status == 'pago' %}
+            <span class="map-status paid">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Pago
+            </span>
+            <div style="font-size: 0.7em; color: var(--success); margin-top: 2px;">{{ format_currency(p.total_pago) }}</div>
+            {% if p.recibos %}
+            <div style="font-size: 0.65em; color: var(--text-muted); margin-top: 1px;">
+                {% for r in p.recibos %}#{{ r.numero }}{% if not loop.last %},{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            {% elif p.status == 'parcial' %}
+            <span class="map-status partial">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Parcial
+            </span>
+            <div style="font-size: 0.7em; color: var(--warning); margin-top: 2px;">{{ format_currency(p.total_pago) }}</div>
+            {% elif p.status == 'atraso' %}
+            <span class="map-status late">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Em Dívida
+            </span>
+            <div style="font-size: 0.7em; color: var(--danger-text); margin-top: 2px;">{{ format_currency(p.valor_esperado) }}</div>
+            {% else %}
+            <span class="map-status pending">Pendente</span>
+            <div style="font-size: 0.65em; color: var(--text-muted); margin-top: 2px;">—</div>
+            {% endif %}
+        </td>
+        {% endfor %}
+        <td class="text-center">
+            {% set todos_pagos = namespace(valor=True) %}
+            {% set tem_atraso = namespace(valor=False) %}
+            {% for p in linha.periodos %}
+                {% if p.status != 'pago' and p.status != 'pendente' %}
+                    {% set todos_pagos.valor = False %}
+                {% endif %}
+                {% if p.status == 'atraso' %}
+                    {% set tem_atraso.valor = True %}
+                {% endif %}
+            {% endfor %}
+            {% if todos_pagos.valor %}
+            <span class="badge badge-success">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Em dia
+            </span>
+            {% elif tem_atraso.valor %}
+            <span class="badge badge-danger">Com dívida</span>
+            {% else %}
+            <span class="badge badge-warning">Atenção</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+
+<!-- Legend -->
+<div class="card" style="margin-top: 18px;">
+    <h3 style="margin-bottom: 10px; font-size: 0.9em;">Legenda</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.8em;">
+        <span class="map-status paid">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Pago
+        </span>
+        <span class="map-status partial">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>
+            Parcial
+        </span>
+        <span class="map-status late">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Em Dívida
+        </span>
+        <span class="map-status pending">Pendente</span>
+    </div>
+</div>
+
+<!-- Summary -->
+<div class="card" style="border-left: 3px solid var(--primary);">
+    {% set total_fracoes = mapa|length %}
+    {% set em_dia = namespace(valor=0) %}
+    {% set com_divida = namespace(valor=0) %}
+    {% for linha in mapa %}
+        {% set tem_problema = namespace(valor=False) %}
+        {% for p in linha.periodos %}
+            {% if p.status == 'atraso' or p.status == 'parcial' %}
+                {% set tem_problema.valor = True %}
+            {% endif %}
+        {% endfor %}
+        {% if tem_problema.valor %}
+            {% set com_divida.valor = com_divida.valor + 1 %}
+        {% else %}
+            {% set em_dia.valor = em_dia.valor + 1 %}
+        {% endif %}
+    {% endfor %}
+    <p style="font-size: 0.9em;">
+        <strong>{{ em_dia.valor }} de {{ total_fracoes }}</strong> frações em dia.
+        {% if com_divida.valor > 0 %}
+        <span style="color: var(--danger-text);">
+            <strong>{{ com_divida.valor }}</strong> com pagamentos em atraso.
+        </span>
+        {% endif %}
+    </p>
+</div>
+
+{% endblock %}

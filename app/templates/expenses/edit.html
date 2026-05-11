@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="section-header">
+    <h1>Despesas</h1>
+    <a href="{{ url_for('expenses.new') }}" class="btn btn-danger btn-sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova
+    </a>
+</div>
+
+{% if despesas %}
+<div class="table-wrap">
+<table>
+    <tr>
+        <th>Data</th>
+        <th>Categoria</th>
+        <th>Descrição</th>
+        <th class="text-right">Valor</th>
+        <th class="text-center">Reemb.</th>
+        <th class="text-center">Ações</th>
+    </tr>
+    {% for despesa in despesas %}
+    <tr>
+        <td class="text-muted" style="white-space: nowrap;">{{ despesa.data.strftime('%d/%m/%Y') }}</td>
+        <td><span class="badge badge-neutral">{{ despesa.categoria }}</span></td>
+        <td>
+            {{ despesa.descricao }}
+            {% if despesa.notas %}
+            <br><span class="text-muted" style="font-size: 0.78em;">{{ despesa.notas }}</span>
+            {% endif %}
+        </td>
+        <td class="text-right text-mono font-bold" style="color: var(--danger-text);">{{ format_currency(despesa.valor) }}</td>
+        <td class="text-center">
+            {% if despesa.pago_por == 'Administrador (pessoal)' %}
+                {% if despesa.reembolsado %}
+                <span class="badge badge-success">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Sim
+                </span>
+                {% else %}
+                <span class="badge badge-warning">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Pendente
+                </span>
+                {% endif %}
+            {% else %}
+                <span class="text-muted">—</span>
+            {% endif %}
+        </td>
+        <td class="text-center">
+            <div style="display: flex; gap: 2px; justify-content: center;">
+                <a href="{{ url_for('expenses.edit', id=despesa.id) }}" class="btn-icon" title="Editar despesa">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </a>
+                <form method="POST" action="{{ url_for('expenses.delete', id=despesa.id) }}" onsubmit="return confirm('Eliminar esta despesa? Esta ação não pode ser desfeita.')" style="display: inline;">
+                    <button type="submit" class="btn-icon" title="Eliminar despesa" style="color: var(--danger-text);">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                </form>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+
+<div style="text-align: center; margin-top: 12px;" class="text-muted">
+    {{ despesas|length }} despesas
+</div>
+
+{% else %}
+<div class="empty-state">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+    <p>Ainda não há despesas registadas.</p>
+    <a href="{{ url_for('expenses.new') }}" class="btn btn-danger">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Registar primeira despesa
+    </a>
+</div>
+{% endif %}
+
+{% endblock %}
